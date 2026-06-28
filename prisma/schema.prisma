@@ -1,0 +1,170 @@
+// Educational Space Reservation Management System - Prisma Schema
+// Engine: PostgreSQL (Supabase)
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum UserRole {
+  ADMIN
+  DIRETOR
+  COORDENADOR
+  PROFESSOR
+  AUXILIAR
+}
+
+enum BookingStatus {
+  ACTIVE
+  CANCELLED
+  DELETED
+}
+
+enum BookingType {
+  SINGLE
+  RECURRING
+}
+
+// ─── User ────────────────────────────────────────────────────────────────────
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String   // bcrypt hashed
+  role      UserRole @default(PROFESSOR)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  bookings Booking[]
+  logs     Log[]
+
+  @@map("users")
+}
+
+// ─── Campus ──────────────────────────────────────────────────────────────────
+
+model Campus {
+  id           String   @id @default(cuid())
+  name         String
+  address      String
+  city         String
+  state        String
+  zipCode      String   @map("zip_code")
+  latitude     Float?
+  longitude    Float?
+  photoUrl     String?  @map("photo_url")
+  blueprintUrl String?  @map("blueprint_url") // PDF/image of campus/building floor plan
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  buildings Building[]
+
+  @@map("campuses")
+}
+
+// ─── Building ────────────────────────────────────────────────────────────────
+
+model Building {
+  id            String   @id @default(cuid())
+  name          String
+  campusId      String   @map("campus_id")
+  address       String?  // Specific location/address within the campus
+  photoUrl      String?  @map("photo_url")
+  internalMapUrl String? @map("internal_map_url") // PDF/image of internal rooms layout
+  active        Boolean  @default(true)
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  campus       Campus        @relation(fields: [campusId], references: [id], onDelete: Cascade)
+  environments Environment[]
+
+  @@map("buildings")
+}
+
+// ─── Environment Type ────────────────────────────────────────────────────────
+
+model EnvironmentType {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  environments Environment[]
+
+  @@map("environment_types")
+}
+
+// ─── Environment / Room ──────────────────────────────────────────────────────
+
+model Environment {
+  id                String   @id @default(cuid())
+  name              String
+  buildingId        String   @map("building_id")
+  environmentTypeId String   @map("environment_type_id")
+  capacity          Int      @default(1)
+  description       String?
+  photoUrl          String?  @map("photo_url")
+  active            Boolean  @default(true)
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  building       Building         @relation(fields: [buildingId], references: [id], onDelete: Cascade)
+  environmentType EnvironmentType @relation(fields: [environmentTypeId], references: [id])
+  bookings       Booking[]
+
+  @@map("environments")
+}
+
+// ─── Booking ─────────────────────────────────────────────────────────────────
+
+model Booking {
+  id                String        @id @default(cuid())
+  title             String
+  description       String?
+  userId            String        @map("user_id")
+  bookedForUserId   String?       @map("booked_for_user_id") // If booking on behalf of another user
+  environmentId     String        @map("environment_id")
+  bookingType       BookingType   @default(SINGLE) @map("booking_type")
+  date              DateTime?     // For single bookings: the specific date
+  startDate         DateTime?     @map("start_date") // For recurring: start of range
+  endDate           DateTime?     @map("end_date")   // For recurring: end of range
+  startTime         String        @map("start_time") // "HH:mm" format
+  endTime           String        @map("end_time")   // "HH:mm" format
+  recurringDayOfWeek Int?         @map("recurring_day_of_week") // 0-6, for recurring bookings
+  status            BookingStatus @default(ACTIVE)
+  cancellationReason String?      @map("cancellation_reason")
+  createdAt         DateTime      @default(now()) @map("created_at")
+  updatedAt         DateTime      @updatedAt @map("updated_at")
+
+  user        User        @relation(fields: [userId], references: [id])
+  environment Environment @relation(fields: [environmentId], references: [id])
+
+  @@map("bookings")
+}
+
+// ─── Audit Log ───────────────────────────────────────────────────────────────
+
+model Log {
+  id         String   @id @default(cuid())
+  action     String   // e.g., CREATE, UPDATE, DELETE, CANCEL, RESTORE
+  entityType String   @map("entity_type") // e.g., USER, CAMPUS, BUILDING, ENVIRONMENT, BOOKING
+  entityId   String   @map("entity_id")
+  userId     String   @map("user_id")
+  details    String?  // JSON string with additional details
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("logs")
+}
