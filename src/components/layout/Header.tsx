@@ -21,7 +21,7 @@ export default function Header({ onMenuToggle }: HeaderProps) {
 
   const navLinks = [
     { href: "/", label: t("home") },
-    { href: "/bookings", label: t("bookings") },
+    { href: "/dashboard/bookings", label: t("bookings") },
   ];
 
   const userInitial = user?.name?.charAt(0)?.toUpperCase() ?? "?";
