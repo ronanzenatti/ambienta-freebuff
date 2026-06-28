@@ -6,7 +6,12 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 function createPrismaClient() {
-  const connectionString = process.env.DATABASE_URL ?? "";
+  // Use pooled connection in production (Vercel serverless), direct in development
+  const isProduction = process.env.NODE_ENV === "production";
+  const connectionString = isProduction
+    ? (process.env.DATABASE_URL_POOLED ?? "")
+    : (process.env.DATABASE_URL ?? "");
+
   const adapter = new PrismaPg({ connectionString });
 
   return new PrismaClient({ adapter });
