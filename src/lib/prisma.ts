@@ -6,13 +6,22 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 function createPrismaClient() {
-  // Use pooled connection in production (Vercel serverless), direct in development
-  const isProduction = process.env.NODE_ENV === "production";
-  const connectionString = isProduction
-    ? (process.env.DATABASE_URL_POOLED ?? "")
-    : (process.env.DATABASE_URL ?? "");
+  const rawUrl = process.env.POSTGRES_URL;
 
-  const adapter = new PrismaPg({ connectionString });
+  if (!rawUrl) {
+    throw new Error(
+      `Database connection string is missing. ` +
+        `Please set POSTGRES_URL in your environment variables.`
+    );
+  }
+
+  // Strip sslmode from URL — handled via adapter ssl option below
+  // Handles both ?sslmode=require and ?sslmode=require&other=... cases
+  const connectionString = rawUrl.replace(/([?&])sslmode=[^&]*&?/g, "$1").replace(/[?&]$/, "");
+  const adapter = new PrismaPg({
+    connectionString,
+    ssl: { rejectUnauthorized: false },
+  });
 
   return new PrismaClient({ adapter });
 }

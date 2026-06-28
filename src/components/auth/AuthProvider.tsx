@@ -24,7 +24,14 @@ interface AuthContextValue {
   logout: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+const defaultAuth: AuthContextValue = {
+  user: null,
+  loading: false,
+  refresh: async () => {},
+  logout: async () => {},
+};
+
+const AuthContext = createContext<AuthContextValue>(defaultAuth);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
@@ -65,9 +72,5 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 }
 
 export function useAuth(): AuthContextValue {
-  const ctx = useContext(AuthContext);
-  if (!ctx) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return ctx;
+  return useContext(AuthContext);
 }

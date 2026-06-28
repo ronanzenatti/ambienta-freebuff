@@ -7,14 +7,23 @@
  * This script is intended for DEVELOPMENT only.
  * It drops and recreates the admin user on every run.
  */
+import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../src/generated/prisma/client";
 import bcrypt from "bcryptjs";
 
 // ─── Database connection ─────────────────────────────────────────────────────
 
-const connectionString = process.env.DATABASE_URL ?? "";
-const adapter = new PrismaPg({ connectionString });
+// Use POSTGRES_URL_NON_POOLING (direct connection) for scripts like seed
+// or fall back to POSTGRES_URL (pooled) if not available
+// Remove sslmode from URL since we configure SSL via adapter options
+// Handles both ?sslmode=require and ?sslmode=require&other=... cases
+const rawUrl = process.env.POSTGRES_URL_NON_POOLING ?? process.env.POSTGRES_URL ?? "";
+const connectionString = rawUrl.replace(/([?&])sslmode=[^&]*&?/g, "$1").replace(/[?&]$/, "");
+const adapter = new PrismaPg({
+  connectionString,
+  ssl: { rejectUnauthorized: false },
+});
 const prisma = new PrismaClient({ adapter });
 
 // ─── Constants ───────────────────────────────────────────────────────────────
