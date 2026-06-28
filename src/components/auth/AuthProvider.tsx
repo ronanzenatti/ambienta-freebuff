@@ -52,9 +52,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // logoutAction calls redirect('/login') on the server
   }, []);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     refresh();
-  }, [refresh]);
+  }, []);
 
   return (
     <AuthContext.Provider value={{ user, loading, refresh, logout }}>

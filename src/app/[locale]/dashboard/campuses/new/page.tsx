@@ -3,7 +3,7 @@
 import { useActionState, useState } from "react";
 import { ArrowLeft, Save, Search } from "lucide-react";
 import { Link } from "@/i18n/navigation";
-import { createCampus, lookupCep, type ActionState, type ViaCEPResult } from "@/actions/campuses";
+import { createCampus, lookupCep, type ActionState } from "@/actions/campuses";
 
 export default function NewCampusPage() {
   const [state, action, pending] = useActionState<ActionState, FormData>(createCampus, {});

@@ -96,6 +96,7 @@ export default function LazySelect({
   }, [focusedIndex]);
 
   // Reset focus index when search changes
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     setFocusedIndex(-1);
   }, [search]);

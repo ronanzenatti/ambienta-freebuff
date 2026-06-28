@@ -4,7 +4,6 @@ import { useActionState, useState, useEffect } from "react";
 import { ArrowLeft, Save, RefreshCw, CalendarDays } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { createBooking, createRecurringBooking, checkAvailability, type ActionState, type AvailableEnvironment } from "@/actions/bookings";
-import type { SelectOption } from "@/components/ui/LazySelect";
 
 interface Props {
   campuses: Array<{ id: string; name: string }>;
@@ -46,6 +45,7 @@ export function BookingForm({ campuses, buildings, environmentTypes, users }: Pr
   };
 
   // Reset availability when filters change
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     setAvailabilityChecked(false);
   }, [selectedDate, selectedStartTime, selectedEndTime, selectedCampus, selectedBuilding, selectedEnvType]);

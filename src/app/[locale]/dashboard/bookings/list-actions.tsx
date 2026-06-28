@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Link } from "@/i18n/navigation";
 import { useRouter } from "@/i18n/navigation";
 import { cancelBooking, restoreBooking } from "@/actions/bookings";
 import ConfirmModal from "@/components/ui/ConfirmModal";
