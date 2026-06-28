@@ -112,12 +112,14 @@ export async function createBuilding(
   const name = (formData.get("name") as string)?.trim();
   const campusId = formData.get("campusId") as string;
   const address = (formData.get("address") as string)?.trim() || null;
+  const photoUrl = (formData.get("photoUrl") as string)?.trim() || null;
+  const internalMapUrl = (formData.get("internalMapUrl") as string)?.trim() || null;
 
   if (!name) return { error: "Nome é obrigatório." };
   if (!campusId) return { error: "Campus é obrigatório." };
 
   try {
-    await prisma.building.create({ data: { name, campusId, address } });
+    await prisma.building.create({ data: { name, campusId, address, photoUrl, internalMapUrl } });
   } catch (err) {
     console.error("createBuilding error:", err);
     return { error: "Erro ao criar prédio." };
@@ -139,6 +141,8 @@ export async function updateBuilding(
   const name = (formData.get("name") as string)?.trim();
   const campusId = formData.get("campusId") as string;
   const address = (formData.get("address") as string)?.trim() || null;
+  const photoUrl = (formData.get("photoUrl") as string)?.trim() || null;
+  const internalMapUrl = (formData.get("internalMapUrl") as string)?.trim() || null;
 
   if (!name) return { error: "Nome é obrigatório." };
   if (!campusId) return { error: "Campus é obrigatório." };
@@ -146,7 +150,7 @@ export async function updateBuilding(
   try {
     await prisma.building.update({
       where: { id },
-      data: { name, campusId, address },
+      data: { name, campusId, address, photoUrl, internalMapUrl },
     });
   } catch (err) {
     console.error("updateBuilding error:", err);

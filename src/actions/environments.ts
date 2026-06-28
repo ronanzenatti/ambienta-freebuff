@@ -118,6 +118,7 @@ export async function createEnvironment(
   const environmentTypeId = formData.get("environmentTypeId") as string;
   const capacityStr = formData.get("capacity") as string;
   const description = (formData.get("description") as string)?.trim() || null;
+  const photoUrl = (formData.get("photoUrl") as string)?.trim() || null;
 
   if (!name) return { error: "Nome é obrigatório." };
   if (!buildingId) return { error: "Prédio é obrigatório." };
@@ -128,7 +129,7 @@ export async function createEnvironment(
 
   try {
     await prisma.environment.create({
-      data: { name, buildingId, environmentTypeId, capacity, description },
+      data: { name, buildingId, environmentTypeId, capacity, description, photoUrl },
     });
   } catch (err) {
     console.error("createEnvironment error:", err);
@@ -153,6 +154,7 @@ export async function updateEnvironment(
   const environmentTypeId = formData.get("environmentTypeId") as string;
   const capacityStr = formData.get("capacity") as string;
   const description = (formData.get("description") as string)?.trim() || null;
+  const photoUrl = (formData.get("photoUrl") as string)?.trim() || null;
 
   if (!name) return { error: "Nome é obrigatório." };
   if (!buildingId) return { error: "Prédio é obrigatório." };
@@ -164,7 +166,7 @@ export async function updateEnvironment(
   try {
     await prisma.environment.update({
       where: { id },
-      data: { name, buildingId, environmentTypeId, capacity, description },
+      data: { name, buildingId, environmentTypeId, capacity, description, photoUrl },
     });
   } catch (err) {
     console.error("updateEnvironment error:", err);

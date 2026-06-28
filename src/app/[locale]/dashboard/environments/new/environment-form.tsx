@@ -1,9 +1,10 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { ArrowLeft, Save } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { createEnvironment, type ActionState } from "@/actions/environments";
+import LazySelect from "@/components/ui/LazySelect";
 
 interface Props {
   buildings: Array<{ id: string; name: string }>;
@@ -12,6 +13,8 @@ interface Props {
 
 export function EnvironmentForm({ buildings, environmentTypes }: Props) {
   const [state, action, pending] = useActionState<ActionState, FormData>(createEnvironment, {});
+  const [buildingId, setBuildingId] = useState("");
+  const [envTypeId, setEnvTypeId] = useState("");
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -36,26 +39,30 @@ export function EnvironmentForm({ buildings, environmentTypes }: Props) {
             <input id="name" name="name" type="text" required placeholder="Ex: Sala 101, Lab. Informática 1..." className="w-full px-3.5 py-2.5 text-sm border border-border rounded-xl bg-surface-subtle focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder:text-text-muted transition-all" />
           </div>
 
-          <div>
-            <label htmlFor="buildingId" className="block text-sm font-medium text-text mb-1.5">Prédio <span className="text-red-500">*</span></label>
-            <select id="buildingId" name="buildingId" required className="w-full px-3.5 py-2.5 text-sm border border-border rounded-xl bg-surface-subtle focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 appearance-none cursor-pointer">
-              <option value="">Selecione um prédio...</option>
-              {buildings.map((b) => (
-                <option key={b.id} value={b.id}>{b.name}</option>
-              ))}
-            </select>
-          </div>
+          <LazySelect
+            label="Prédio"
+            options={buildings.map((b) => ({ value: b.id, label: b.name }))}
+            value={buildingId}
+            onChange={setBuildingId}
+            placeholder="Selecione um prédio..."
+            searchPlaceholder="Buscar prédio..."
+            noResultsMessage="Nenhum prédio encontrado"
+            required
+          />
+          <input type="hidden" name="buildingId" value={buildingId} />
 
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="environmentTypeId" className="block text-sm font-medium text-text mb-1.5">Tipo de Ambiente <span className="text-red-500">*</span></label>
-              <select id="environmentTypeId" name="environmentTypeId" required className="w-full px-3.5 py-2.5 text-sm border border-border rounded-xl bg-surface-subtle focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 appearance-none cursor-pointer">
-                <option value="">Selecione...</option>
-                {environmentTypes.map((t) => (
-                  <option key={t.id} value={t.id}>{t.name}</option>
-                ))}
-              </select>
-            </div>
+            <LazySelect
+              label="Tipo de Ambiente"
+              options={environmentTypes.map((t) => ({ value: t.id, label: t.name }))}
+              value={envTypeId}
+              onChange={setEnvTypeId}
+              placeholder="Selecione..."
+              searchPlaceholder="Buscar tipo..."
+              noResultsMessage="Nenhum tipo encontrado"
+              required
+            />
+            <input type="hidden" name="environmentTypeId" value={envTypeId} />
             <div>
               <label htmlFor="capacity" className="block text-sm font-medium text-text mb-1.5">Capacidade <span className="text-red-500">*</span></label>
               <input id="capacity" name="capacity" type="number" required min={1} defaultValue={30} className="w-full px-3.5 py-2.5 text-sm border border-border rounded-xl bg-surface-subtle focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
@@ -65,6 +72,13 @@ export function EnvironmentForm({ buildings, environmentTypes }: Props) {
           <div>
             <label htmlFor="description" className="block text-sm font-medium text-text mb-1.5">Descrição</label>
             <textarea id="description" name="description" rows={3} placeholder="Descrição opcional do ambiente..." className="w-full px-3.5 py-2.5 text-sm border border-border rounded-xl bg-surface-subtle focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder:text-text-muted transition-all resize-none" />
+          </div>
+
+          {/* Foto do Ambiente */}
+          <div>
+            <label htmlFor="photoUrl" className="block text-sm font-medium text-text mb-1.5">Foto do Ambiente</label>
+            <input id="photoUrl" name="photoUrl" type="url" placeholder="https://exemplo.com/foto-ambiente.jpg" className="w-full px-3.5 py-2.5 text-sm border border-border rounded-xl bg-surface-subtle focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder:text-text-muted transition-all" />
+            <p className="mt-1 text-xs text-text-muted">URL de uma imagem do ambiente.</p>
           </div>
 
           <div className="flex items-center gap-3 pt-2">

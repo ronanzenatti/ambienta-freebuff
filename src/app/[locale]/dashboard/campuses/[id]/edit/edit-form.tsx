@@ -13,6 +13,8 @@ interface Props {
     city: string;
     state: string;
     zipCode: string;
+    photoUrl: string | null;
+    blueprintUrl: string | null;
   };
   updateAction: (prevState: ActionState, formData: FormData) => Promise<ActionState>;
 }
@@ -94,6 +96,20 @@ export function EditCampusForm({ item, updateAction }: Props) {
               <label htmlFor="state" className="block text-sm font-medium text-text mb-1.5">Estado</label>
               <input id="state" name="state" type="text" value={state_uf} onChange={(e) => setStateUf(e.target.value)} maxLength={2} className="w-full px-3.5 py-2.5 text-sm border border-border rounded-xl bg-surface-subtle focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all uppercase" />
             </div>
+          </div>
+
+          {/* Foto do Campus */}
+          <div>
+            <label htmlFor="photoUrl" className="block text-sm font-medium text-text mb-1.5">Foto do Campus</label>
+            <input id="photoUrl" name="photoUrl" type="url" defaultValue={item.photoUrl ?? ""} placeholder="https://exemplo.com/foto-campus.jpg" className="w-full px-3.5 py-2.5 text-sm border border-border rounded-xl bg-surface-subtle focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder:text-text-muted transition-all" />
+            <p className="mt-1 text-xs text-text-muted">URL de uma imagem do campus.</p>
+          </div>
+
+          {/* Mapa/Planta do Campus */}
+          <div>
+            <label htmlFor="blueprintUrl" className="block text-sm font-medium text-text mb-1.5">Mapa / Planta do Campus</label>
+            <input id="blueprintUrl" name="blueprintUrl" type="url" defaultValue={item.blueprintUrl ?? ""} placeholder="https://exemplo.com/planta-campus.pdf" className="w-full px-3.5 py-2.5 text-sm border border-border rounded-xl bg-surface-subtle focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder:text-text-muted transition-all" />
+            <p className="mt-1 text-xs text-text-muted">URL de uma imagem ou PDF do mapa/planta do campus.</p>
           </div>
 
           <div className="flex items-center gap-3 pt-2">

@@ -1,9 +1,10 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { ArrowLeft, Save } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { createBuilding, type ActionState } from "@/actions/buildings";
+import LazySelect from "@/components/ui/LazySelect";
 
 interface Props {
   campuses: Array<{ id: string; name: string }>;
@@ -11,6 +12,7 @@ interface Props {
 
 export function BuildingForm({ campuses }: Props) {
   const [state, action, pending] = useActionState<ActionState, FormData>(createBuilding, {});
+  const [campusId, setCampusId] = useState("");
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -35,19 +37,35 @@ export function BuildingForm({ campuses }: Props) {
             <input id="name" name="name" type="text" required placeholder="Ex: Bloco A, Prédio Administrativo..." className="w-full px-3.5 py-2.5 text-sm border border-border rounded-xl bg-surface-subtle focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder:text-text-muted transition-all" />
           </div>
 
-          <div>
-            <label htmlFor="campusId" className="block text-sm font-medium text-text mb-1.5">Campus <span className="text-red-500">*</span></label>
-            <select id="campusId" name="campusId" required className="w-full px-3.5 py-2.5 text-sm border border-border rounded-xl bg-surface-subtle focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 appearance-none cursor-pointer">
-              <option value="">Selecione um campus...</option>
-              {campuses.map((c) => (
-                <option key={c.id} value={c.id}>{c.name}</option>
-              ))}
-            </select>
-          </div>
+          <LazySelect
+            label="Campus"
+            options={campuses.map((c) => ({ value: c.id, label: c.name }))}
+            value={campusId}
+            onChange={setCampusId}
+            placeholder="Selecione um campus..."
+            searchPlaceholder="Buscar campus..."
+            noResultsMessage="Nenhum campus encontrado"
+            required
+          />
+          <input type="hidden" name="campusId" value={campusId} />
 
           <div>
             <label htmlFor="address" className="block text-sm font-medium text-text mb-1.5">Localização no Campus</label>
             <input id="address" name="address" type="text" placeholder="Ex: Próximo ao bloco B" className="w-full px-3.5 py-2.5 text-sm border border-border rounded-xl bg-surface-subtle focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder:text-text-muted transition-all" />
+          </div>
+
+          {/* Foto do Prédio */}
+          <div>
+            <label htmlFor="photoUrl" className="block text-sm font-medium text-text mb-1.5">Foto do Prédio</label>
+            <input id="photoUrl" name="photoUrl" type="url" placeholder="https://exemplo.com/foto-predio.jpg" className="w-full px-3.5 py-2.5 text-sm border border-border rounded-xl bg-surface-subtle focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder:text-text-muted transition-all" />
+            <p className="mt-1 text-xs text-text-muted">URL de uma imagem do prédio.</p>
+          </div>
+
+          {/* Mapa interno do Prédio */}
+          <div>
+            <label htmlFor="internalMapUrl" className="block text-sm font-medium text-text mb-1.5">Mapa / Planta Interna</label>
+            <input id="internalMapUrl" name="internalMapUrl" type="url" placeholder="https://exemplo.com/planta-predio.pdf" className="w-full px-3.5 py-2.5 text-sm border border-border rounded-xl bg-surface-subtle focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder:text-text-muted transition-all" />
+            <p className="mt-1 text-xs text-text-muted">URL de uma imagem ou PDF da planta interna do prédio.</p>
           </div>
 
           <div className="flex items-center gap-3 pt-2">

@@ -1,9 +1,10 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { ArrowLeft, Save } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import type { ActionState } from "@/actions/environments";
+import LazySelect from "@/components/ui/LazySelect";
 
 interface Props {
   item: {
@@ -13,6 +14,7 @@ interface Props {
     environmentTypeId: string;
     capacity: number;
     description: string | null;
+    photoUrl: string | null;
   };
   buildings: Array<{ id: string; name: string }>;
   environmentTypes: Array<{ id: string; name: string }>;
@@ -21,6 +23,8 @@ interface Props {
 
 export function EditEnvironmentForm({ item, buildings, environmentTypes, updateAction }: Props) {
   const [state, action, pending] = useActionState<ActionState, FormData>(updateAction, {});
+  const [buildingId, setBuildingId] = useState(item.buildingId);
+  const [envTypeId, setEnvTypeId] = useState(item.environmentTypeId);
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -45,20 +49,28 @@ export function EditEnvironmentForm({ item, buildings, environmentTypes, updateA
             <input id="name" name="name" type="text" required defaultValue={item.name} className="w-full px-3.5 py-2.5 text-sm border border-border rounded-xl bg-surface-subtle focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
           </div>
 
-          <div>
-            <label htmlFor="buildingId" className="block text-sm font-medium text-text mb-1.5">Prédio <span className="text-red-500">*</span></label>
-            <select id="buildingId" name="buildingId" required defaultValue={item.buildingId} className="w-full px-3.5 py-2.5 text-sm border border-border rounded-xl bg-surface-subtle focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 appearance-none cursor-pointer">
-              {buildings.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
-            </select>
-          </div>
+          <LazySelect
+            label="Prédio"
+            options={buildings.map((b) => ({ value: b.id, label: b.name }))}
+            value={buildingId}
+            onChange={setBuildingId}
+            placeholder="Selecione um prédio..."
+            searchPlaceholder="Buscar prédio..."
+            required
+          />
+          <input type="hidden" name="buildingId" value={buildingId} />
 
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="environmentTypeId" className="block text-sm font-medium text-text mb-1.5">Tipo de Ambiente <span className="text-red-500">*</span></label>
-              <select id="environmentTypeId" name="environmentTypeId" required defaultValue={item.environmentTypeId} className="w-full px-3.5 py-2.5 text-sm border border-border rounded-xl bg-surface-subtle focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 appearance-none cursor-pointer">
-                {environmentTypes.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
-              </select>
-            </div>
+            <LazySelect
+              label="Tipo de Ambiente"
+              options={environmentTypes.map((t) => ({ value: t.id, label: t.name }))}
+              value={envTypeId}
+              onChange={setEnvTypeId}
+              placeholder="Selecione..."
+              searchPlaceholder="Buscar tipo..."
+              required
+            />
+            <input type="hidden" name="environmentTypeId" value={envTypeId} />
             <div>
               <label htmlFor="capacity" className="block text-sm font-medium text-text mb-1.5">Capacidade <span className="text-red-500">*</span></label>
               <input id="capacity" name="capacity" type="number" required min={1} defaultValue={item.capacity} className="w-full px-3.5 py-2.5 text-sm border border-border rounded-xl bg-surface-subtle focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
@@ -68,6 +80,13 @@ export function EditEnvironmentForm({ item, buildings, environmentTypes, updateA
           <div>
             <label htmlFor="description" className="block text-sm font-medium text-text mb-1.5">Descrição</label>
             <textarea id="description" name="description" rows={3} defaultValue={item.description ?? ""} className="w-full px-3.5 py-2.5 text-sm border border-border rounded-xl bg-surface-subtle focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all resize-none" />
+          </div>
+
+          {/* Foto do Ambiente */}
+          <div>
+            <label htmlFor="photoUrl" className="block text-sm font-medium text-text mb-1.5">Foto do Ambiente</label>
+            <input id="photoUrl" name="photoUrl" type="url" defaultValue={item.photoUrl ?? ""} placeholder="https://exemplo.com/foto-ambiente.jpg" className="w-full px-3.5 py-2.5 text-sm border border-border rounded-xl bg-surface-subtle focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder:text-text-muted transition-all" />
+            <p className="mt-1 text-xs text-text-muted">URL de uma imagem do ambiente.</p>
           </div>
 
           <div className="flex items-center gap-3 pt-2">

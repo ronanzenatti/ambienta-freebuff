@@ -115,13 +115,15 @@ export async function createCampus(
   const city = (formData.get("city") as string)?.trim() || "";
   const state = (formData.get("state") as string)?.trim() || "";
   const zipCode = (formData.get("zipCode") as string)?.trim() || "";
+  const photoUrl = (formData.get("photoUrl") as string)?.trim() || null;
+  const blueprintUrl = (formData.get("blueprintUrl") as string)?.trim() || null;
 
   if (!name) return { error: "Nome é obrigatório." };
   if (name.length < 2) return { error: "Nome deve ter no mínimo 2 caracteres." };
 
   try {
     await prisma.campus.create({
-      data: { name, address, city, state, zipCode },
+      data: { name, address, city, state, zipCode, photoUrl, blueprintUrl },
     });
   } catch (err) {
     console.error("createCampus error:", err);
@@ -146,13 +148,15 @@ export async function updateCampus(
   const city = (formData.get("city") as string)?.trim() || "";
   const state = (formData.get("state") as string)?.trim() || "";
   const zipCode = (formData.get("zipCode") as string)?.trim() || "";
+  const photoUrl = (formData.get("photoUrl") as string)?.trim() || null;
+  const blueprintUrl = (formData.get("blueprintUrl") as string)?.trim() || null;
 
   if (!name) return { error: "Nome é obrigatório." };
 
   try {
     await prisma.campus.update({
       where: { id },
-      data: { name, address, city, state, zipCode },
+      data: { name, address, city, state, zipCode, photoUrl, blueprintUrl },
     });
   } catch (err) {
     console.error("updateCampus error:", err);

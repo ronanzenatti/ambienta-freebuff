@@ -97,6 +97,20 @@ export default function NewCampusPage() {
             </div>
           </div>
 
+          {/* Foto do Campus */}
+          <div>
+            <label htmlFor="photoUrl" className="block text-sm font-medium text-text mb-1.5">Foto do Campus</label>
+            <input id="photoUrl" name="photoUrl" type="url" placeholder="https://exemplo.com/foto-campus.jpg" className="w-full px-3.5 py-2.5 text-sm border border-border rounded-xl bg-surface-subtle focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder:text-text-muted transition-all" />
+            <p className="mt-1 text-xs text-text-muted">URL de uma imagem do campus.</p>
+          </div>
+
+          {/* Mapa/Planta do Campus */}
+          <div>
+            <label htmlFor="blueprintUrl" className="block text-sm font-medium text-text mb-1.5">Mapa / Planta do Campus</label>
+            <input id="blueprintUrl" name="blueprintUrl" type="url" placeholder="https://exemplo.com/planta-campus.pdf" className="w-full px-3.5 py-2.5 text-sm border border-border rounded-xl bg-surface-subtle focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder:text-text-muted transition-all" />
+            <p className="mt-1 text-xs text-text-muted">URL de uma imagem ou PDF do mapa/planta do campus.</p>
+          </div>
+
           <div className="flex items-center gap-3 pt-2">
             <button type="submit" disabled={pending} className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed rounded-xl transition-all">
               <Save className="w-4 h-4" />

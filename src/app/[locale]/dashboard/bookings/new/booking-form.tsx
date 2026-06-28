@@ -4,6 +4,8 @@ import { useActionState, useState, useEffect } from "react";
 import { ArrowLeft, Save, RefreshCw, CalendarDays } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { createBooking, createRecurringBooking, checkAvailability, type ActionState, type AvailableEnvironment } from "@/actions/bookings";
+import LazySelect from "@/components/ui/LazySelect";
+import type { SelectOption } from "@/components/ui/LazySelect";
 
 interface Props {
   campuses: Array<{ id: string; name: string }>;
@@ -25,6 +27,12 @@ export function BookingForm({ campuses, buildings, environmentTypes, users }: Pr
   const [selectedStartTime, setSelectedStartTime] = useState("");
   const [selectedEndTime, setSelectedEndTime] = useState("");
   const [selectedEnvType, setSelectedEnvType] = useState("");
+
+  const campusOptions: SelectOption[] = campuses.map((c) => ({ value: c.id, label: c.name }));
+  const buildingOptions: SelectOption[] = buildings
+    .filter((b) => !selectedCampus || b.campusId === selectedCampus)
+    .map((b) => ({ value: b.id, label: b.name }));
+  const envTypeOptions: SelectOption[] = environmentTypes.map((t) => ({ value: t.id, label: t.name }));
   const [availableEnvs, setAvailableEnvs] = useState<AvailableEnvironment[]>([]);
   const [checkingAvailability, setCheckingAvailability] = useState(false);
   const [availabilityChecked, setAvailabilityChecked] = useState(false);
@@ -110,20 +118,22 @@ export function BookingForm({ campuses, buildings, environmentTypes, users }: Pr
 
           {/* Campus & Building Filters */}
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="campusFilter" className="block text-sm font-medium text-text mb-1.5">Campus</label>
-              <select id="campusFilter" value={selectedCampus} onChange={(e) => { setSelectedCampus(e.target.value); setSelectedBuilding(""); }} className="w-full px-3.5 py-2.5 text-sm border border-border rounded-xl bg-surface-subtle focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 appearance-none cursor-pointer">
-                <option value="">Todos os campi</option>
-                {campuses.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-              </select>
-            </div>
-            <div>
-              <label htmlFor="buildingFilter" className="block text-sm font-medium text-text mb-1.5">Prédio</label>
-              <select id="buildingFilter" value={selectedBuilding} onChange={(e) => setSelectedBuilding(e.target.value)} className="w-full px-3.5 py-2.5 text-sm border border-border rounded-xl bg-surface-subtle focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 appearance-none cursor-pointer">
-                <option value="">Todos os prédios</option>
-                {filteredBuildings.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
-              </select>
-            </div>
+            <LazySelect
+              label="Campus"
+              options={[{ value: "", label: "Todos os campi" }, ...campusOptions]}
+              value={selectedCampus}
+              onChange={(v) => { setSelectedCampus(v); setSelectedBuilding(""); }}
+              placeholder="Todos os campi"
+              searchPlaceholder="Buscar campus..."
+            />
+            <LazySelect
+              label="Prédio"
+              options={[{ value: "", label: "Todos os prédios" }, ...buildingOptions]}
+              value={selectedBuilding}
+              onChange={setSelectedBuilding}
+              placeholder="Todos os prédios"
+              searchPlaceholder="Buscar prédio..."
+            />
           </div>
 
           {/* Date & Time */}
@@ -175,13 +185,14 @@ export function BookingForm({ campuses, buildings, environmentTypes, users }: Pr
           )}
 
           {/* Environment Type Filter */}
-          <div>
-            <label htmlFor="envTypeFilter" className="block text-sm font-medium text-text mb-1.5">Tipo de Ambiente</label>
-            <select id="envTypeFilter" value={selectedEnvType} onChange={(e) => setSelectedEnvType(e.target.value)} className="w-full px-3.5 py-2.5 text-sm border border-border rounded-xl bg-surface-subtle focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 appearance-none cursor-pointer">
-              <option value="">Todos os tipos</option>
-              {environmentTypes.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
-            </select>
-          </div>
+          <LazySelect
+            label="Tipo de Ambiente"
+            options={[{ value: "", label: "Todos os tipos" }, ...envTypeOptions]}
+            value={selectedEnvType}
+            onChange={setSelectedEnvType}
+            placeholder="Todos os tipos"
+            searchPlaceholder="Buscar tipo..."
+          />
 
           {/* Check Availability Button */}
           {bookingType === "single" && (
