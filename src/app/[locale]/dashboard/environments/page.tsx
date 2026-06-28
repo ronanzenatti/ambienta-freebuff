@@ -1,0 +1,120 @@
+import { Suspense } from "react";
+import { Plus, Search, DoorOpen } from "lucide-react";
+import { Link } from "@/i18n/navigation";
+import { listEnvironments } from "@/actions/environments";
+import { listBuildings } from "@/actions/buildings";
+import { listEnvironmentTypes } from "@/actions/environment-types";
+import { EnvironmentListActions } from "./list-actions";
+import { Pagination } from "@/components/ui/pagination";
+
+interface Props {
+  searchParams: Promise<{ q?: string; buildingId?: string; environmentTypeId?: string; page?: string }>;
+}
+
+async function Table({ q, buildingId, environmentTypeId, page }: { q: string; buildingId: string; environmentTypeId: string; page: number }) {
+  const { data, total, page: currentPage, totalPages } = await listEnvironments({ q, buildingId, environmentTypeId, page });
+
+  if (data.length === 0) {
+    return (
+      <div className="bg-white rounded-xl border border-border p-12 text-center">
+        <DoorOpen className="w-12 h-12 text-text-muted mx-auto mb-4" />
+        <h3 className="text-lg font-medium text-text mb-1">Nenhum ambiente</h3>
+        <p className="text-sm text-text-subtle mb-4">
+          {q ? "Nenhum resultado para sua busca." : "Crie o primeiro ambiente para começar."}
+        </p>
+        {!q && (
+          <Link href="/dashboard/environments/new" className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
+            <Plus className="w-4 h-4" />
+            Novo Ambiente
+          </Link>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white rounded-xl border border-border overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          <thead>
+            <tr className="border-b border-border bg-surface-subtle">
+              <th className="text-left px-4 py-3 text-xs font-semibold text-text-muted uppercase tracking-wider">Nome</th>
+              <th className="text-left px-4 py-3 text-xs font-semibold text-text-muted uppercase tracking-wider">Prédio</th>
+              <th className="text-left px-4 py-3 text-xs font-semibold text-text-muted uppercase tracking-wider">Tipo</th>
+              <th className="text-left px-4 py-3 text-xs font-semibold text-text-muted uppercase tracking-wider">Capacidade</th>
+              <th className="text-left px-4 py-3 text-xs font-semibold text-text-muted uppercase tracking-wider">Status</th>
+              <th className="text-right px-4 py-3 text-xs font-semibold text-text-muted uppercase tracking-wider">Ações</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-border">
+            {data.map((item) => (
+              <tr key={item.id} className="hover:bg-surface-hovered transition-colors">
+                <td className="px-4 py-3"><p className="text-sm font-medium text-text">{item.name}</p></td>
+                <td className="px-4 py-3 text-sm text-text-subtle">{item.buildingName}</td>
+                <td className="px-4 py-3"><span className="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-purple-50 text-purple-700">{item.environmentTypeName}</span></td>
+                <td className="px-4 py-3 text-sm text-text">{item.capacity} vagas</td>
+                <td className="px-4 py-3">
+                  <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${item.active ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"}`}>
+                    {item.active ? "Ativo" : "Inativo"}
+                  </span>
+                </td>
+                <td className="px-4 py-3 text-right">
+                  <EnvironmentListActions id={item.id} name={item.name} active={item.active} />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <Pagination currentPage={currentPage} totalPages={totalPages} total={total} />
+    </div>
+  );
+}
+
+export default async function EnvironmentsPage({ searchParams }: Props) {
+  const { q = "", buildingId = "", environmentTypeId = "", page: pageStr } = await searchParams;
+  const page = Math.max(1, parseInt(pageStr || "1", 10) || 1);
+
+  const [{ data: buildings }, { data: environmentTypes }] = await Promise.all([
+    listBuildings({ pageSize: 100 }),
+    listEnvironmentTypes({ pageSize: 100 }),
+  ]);
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-text">Ambientes</h1>
+          <p className="mt-1 text-sm text-text-subtle">Gerencie as salas, laboratórios e outros ambientes.</p>
+        </div>
+        <Link href="/dashboard/environments/new" className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
+          <Plus className="w-4 h-4" />
+          Novo Ambiente
+        </Link>
+      </div>
+
+      <form className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
+          <input type="text" name="q" defaultValue={q} placeholder="Buscar por nome..." className="w-full pl-9 pr-3 py-2.5 text-sm border border-border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder:text-text-muted" />
+        </div>
+        <select name="buildingId" defaultValue={buildingId} className="px-3 py-2.5 text-sm border border-border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 appearance-none cursor-pointer">
+          <option value="">Todos os prédios</option>
+          {buildings.map((b) => (
+            <option key={b.id} value={b.id}>{b.name}</option>
+          ))}
+        </select>
+        <select name="environmentTypeId" defaultValue={environmentTypeId} className="px-3 py-2.5 text-sm border border-border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 appearance-none cursor-pointer">
+          <option value="">Todos os tipos</option>
+          {environmentTypes.map((t) => (
+            <option key={t.id} value={t.id}>{t.name}</option>
+          ))}
+        </select>
+      </form>
+
+      <Suspense fallback={<div className="bg-white rounded-xl border border-border p-12 text-center text-text-muted">Carregando...</div>}>
+        <Table q={q} buildingId={buildingId} environmentTypeId={environmentTypeId} page={page} />
+      </Suspense>
+    </div>
+  );
+}
