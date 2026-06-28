@@ -13,14 +13,17 @@
     "db:sync": "tsx prisma/dev-sync.ts",
     "db:studio": "prisma studio",
     "db:migrate": "prisma migrate dev",
-    "db:migrate:deploy": "prisma migrate deploy"
+    "db:migrate:deploy": "prisma migrate deploy",
+    "db:seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@iconify/json": "^2.2.492",
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "@supabase/supabase-js": "^2.108.2",
+    "bcryptjs": "^3.0.3",
     "date-fns": "^4.4.0",
+    "jose": "^6.2.3",
     "lucide-react": "^1.21.0",
     "next": "16.2.9",
     "next-intl": "^4.13.0",

@@ -1,25 +1,30 @@
 "use client";
 
 import { useState } from "react";
-import { Menu, X, Bell, User, Globe, LogOut, ChevronDown } from "lucide-react";
+import { Menu, Bell, User, Globe, LogOut, ChevronDown } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
+import { useAuth } from "@/components/auth/AuthProvider";
 
 interface HeaderProps {
   onMenuToggle?: () => void;
-  isAuthenticated?: boolean;
 }
 
-export default function Header({ onMenuToggle, isAuthenticated = false }: HeaderProps) {
+export default function Header({ onMenuToggle }: HeaderProps) {
   const t = useTranslations("nav");
   const pathname = usePathname();
+  const { user, loading, logout } = useAuth();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [localeMenuOpen, setLocaleMenuOpen] = useState(false);
+
+  const isAuthenticated = !!user;
 
   const navLinks = [
     { href: "/", label: t("home") },
     { href: "/bookings", label: t("bookings") },
   ];
+
+  const userInitial = user?.name?.charAt(0)?.toUpperCase() ?? "?";
 
   return (
     <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-md border-b border-border">
@@ -115,15 +120,19 @@ export default function Header({ onMenuToggle, isAuthenticated = false }: Header
                   className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-surface-hovered transition-colors"
                 >
                   <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center text-white text-sm font-medium">
-                    A
+                    {userInitial}
                   </div>
                   <ChevronDown className="w-4 h-4 text-text-muted hidden sm:block" />
                 </button>
                 {userMenuOpen && (
                   <div className="absolute right-0 mt-1 w-56 bg-white border border-border rounded-xl shadow-xl overflow-hidden z-50">
                     <div className="px-3 py-3 border-b border-border">
-                      <p className="text-sm font-medium text-text">Admin</p>
-                      <p className="text-xs text-text-muted">admin@admin.com</p>
+                      <p className="text-sm font-medium text-text truncate">
+                        {user?.name}
+                      </p>
+                      <p className="text-xs text-text-muted truncate">
+                        {user?.email}
+                      </p>
                     </div>
                     <Link
                       href="/dashboard"
@@ -134,7 +143,10 @@ export default function Header({ onMenuToggle, isAuthenticated = false }: Header
                       Dashboard
                     </Link>
                     <button
-                      onClick={() => setUserMenuOpen(false)}
+                      onClick={() => {
+                        setUserMenuOpen(false);
+                        logout();
+                      }}
                       className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors border-t border-border"
                     >
                       <LogOut className="w-4 h-4" />
@@ -145,12 +157,14 @@ export default function Header({ onMenuToggle, isAuthenticated = false }: Header
               </div>
             </>
           ) : (
-            <Link
-              href="/login"
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
-            >
-              {t("login")}
-            </Link>
+            !loading && (
+              <Link
+                href="/login"
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+              >
+                {t("login")}
+              </Link>
+            )
           )}
         </div>
       </div>
