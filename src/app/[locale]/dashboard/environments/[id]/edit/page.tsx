@@ -1,4 +1,4 @@
-import { getEnvironment } from "@/actions/environments";
+import { getEnvironment, updateEnvironment } from "@/actions/environments";
 import { listBuildings } from "@/actions/buildings";
 import { listEnvironmentTypes } from "@/actions/environment-types";
 import { notFound } from "next/navigation";
@@ -22,6 +22,7 @@ export default async function EditEnvironmentPage({ params }: Props) {
       item={item}
       buildings={buildings}
       environmentTypes={envTypes}
+      updateAction={updateEnvironment.bind(null, id)}
     />
   );
 }

@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import { ArrowLeft, Save } from "lucide-react";
 import { Link } from "@/i18n/navigation";
-import { updateBuilding, type ActionState } from "@/actions/buildings";
+import type { ActionState } from "@/actions/buildings";
 
 interface Props {
   item: {
@@ -13,15 +13,11 @@ interface Props {
     address: string | null;
   };
   campuses: Array<{ id: string; name: string }>;
+  updateAction: (prevState: ActionState, formData: FormData) => Promise<ActionState>;
 }
 
-export function EditBuildingForm({ item, campuses }: Props) {
-  const updateWithId = async (_prevState: ActionState, formData: FormData) => {
-    "use server";
-    return updateBuilding(item.id, _prevState, formData);
-  };
-
-  const [state, action, pending] = useActionState<ActionState, FormData>(updateWithId, {});
+export function EditBuildingForm({ item, campuses, updateAction }: Props) {
+  const [state, action, pending] = useActionState<ActionState, FormData>(updateAction, {});
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -49,9 +45,7 @@ export function EditBuildingForm({ item, campuses }: Props) {
           <div>
             <label htmlFor="campusId" className="block text-sm font-medium text-text mb-1.5">Campus <span className="text-red-500">*</span></label>
             <select id="campusId" name="campusId" required defaultValue={item.campusId} className="w-full px-3.5 py-2.5 text-sm border border-border rounded-xl bg-surface-subtle focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 appearance-none cursor-pointer">
-              {campuses.map((c) => (
-                <option key={c.id} value={c.id}>{c.name}</option>
-              ))}
+              {campuses.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
           </div>
 

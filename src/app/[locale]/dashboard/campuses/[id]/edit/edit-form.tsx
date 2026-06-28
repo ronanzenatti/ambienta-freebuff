@@ -3,7 +3,7 @@
 import { useActionState, useState } from "react";
 import { ArrowLeft, Save, Search } from "lucide-react";
 import { Link } from "@/i18n/navigation";
-import { updateCampus, lookupCep, type ActionState } from "@/actions/campuses";
+import { lookupCep, type ActionState } from "@/actions/campuses";
 
 interface Props {
   item: {
@@ -14,15 +14,11 @@ interface Props {
     state: string;
     zipCode: string;
   };
+  updateAction: (prevState: ActionState, formData: FormData) => Promise<ActionState>;
 }
 
-export function EditCampusForm({ item }: Props) {
-  const updateWithId = async (_prevState: ActionState, formData: FormData) => {
-    "use server";
-    return updateCampus(item.id, _prevState, formData);
-  };
-
-  const [state, action, pending] = useActionState<ActionState, FormData>(updateWithId, {});
+export function EditCampusForm({ item, updateAction }: Props) {
+  const [state, action, pending] = useActionState<ActionState, FormData>(updateAction, {});
   const [cepLoading, setCepLoading] = useState(false);
   const [address, setAddress] = useState(item.address);
   const [city, setCity] = useState(item.city);

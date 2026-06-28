@@ -1,4 +1,4 @@
-import { getEnvironmentType } from "@/actions/environment-types";
+import { getEnvironmentType, updateEnvironmentType } from "@/actions/environment-types";
 import { notFound } from "next/navigation";
 import { EditForm } from "./edit-form";
 
@@ -12,5 +12,10 @@ export default async function EditEnvironmentTypePage({ params }: Props) {
 
   if (!item) notFound();
 
-  return <EditForm item={{ id: item.id, name: item.name, description: item.description }} />;
+  return (
+    <EditForm
+      item={{ id: item.id, name: item.name, description: item.description }}
+      updateAction={updateEnvironmentType.bind(null, id)}
+    />
+  );
 }

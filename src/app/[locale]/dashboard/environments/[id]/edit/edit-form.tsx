@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import { ArrowLeft, Save } from "lucide-react";
 import { Link } from "@/i18n/navigation";
-import { updateEnvironment, type ActionState } from "@/actions/environments";
+import type { ActionState } from "@/actions/environments";
 
 interface Props {
   item: {
@@ -16,15 +16,11 @@ interface Props {
   };
   buildings: Array<{ id: string; name: string }>;
   environmentTypes: Array<{ id: string; name: string }>;
+  updateAction: (prevState: ActionState, formData: FormData) => Promise<ActionState>;
 }
 
-export function EditEnvironmentForm({ item, buildings, environmentTypes }: Props) {
-  const updateWithId = async (_prevState: ActionState, formData: FormData) => {
-    "use server";
-    return updateEnvironment(item.id, _prevState, formData);
-  };
-
-  const [state, action, pending] = useActionState<ActionState, FormData>(updateWithId, {});
+export function EditEnvironmentForm({ item, buildings, environmentTypes, updateAction }: Props) {
+  const [state, action, pending] = useActionState<ActionState, FormData>(updateAction, {});
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -52,9 +48,7 @@ export function EditEnvironmentForm({ item, buildings, environmentTypes }: Props
           <div>
             <label htmlFor="buildingId" className="block text-sm font-medium text-text mb-1.5">Prédio <span className="text-red-500">*</span></label>
             <select id="buildingId" name="buildingId" required defaultValue={item.buildingId} className="w-full px-3.5 py-2.5 text-sm border border-border rounded-xl bg-surface-subtle focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 appearance-none cursor-pointer">
-              {buildings.map((b) => (
-                <option key={b.id} value={b.id}>{b.name}</option>
-              ))}
+              {buildings.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
             </select>
           </div>
 
@@ -62,9 +56,7 @@ export function EditEnvironmentForm({ item, buildings, environmentTypes }: Props
             <div>
               <label htmlFor="environmentTypeId" className="block text-sm font-medium text-text mb-1.5">Tipo de Ambiente <span className="text-red-500">*</span></label>
               <select id="environmentTypeId" name="environmentTypeId" required defaultValue={item.environmentTypeId} className="w-full px-3.5 py-2.5 text-sm border border-border rounded-xl bg-surface-subtle focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 appearance-none cursor-pointer">
-                {environmentTypes.map((t) => (
-                  <option key={t.id} value={t.id}>{t.name}</option>
-                ))}
+                {environmentTypes.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
               </select>
             </div>
             <div>

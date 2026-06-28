@@ -1,4 +1,4 @@
-import { getBuilding } from "@/actions/buildings";
+import { getBuilding, updateBuilding } from "@/actions/buildings";
 import { listCampuses } from "@/actions/campuses";
 import { notFound } from "next/navigation";
 import { EditBuildingForm } from "./edit-form";
@@ -15,5 +15,5 @@ export default async function EditBuildingPage({ params }: Props) {
   ]);
   if (!item) notFound();
 
-  return <EditBuildingForm item={item} campuses={campuses} />;
+  return <EditBuildingForm item={item} campuses={campuses} updateAction={updateBuilding.bind(null, id)} />;
 }
